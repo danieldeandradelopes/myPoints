@@ -16,7 +16,7 @@ class TransactionController {
     const { page = 1 } = req.query;
 
     const transactions = await Transaction.findAll({
-      where: { user_id: req.body.user_id, deleted_at: null },
+      where: { user_id: req.userId, deleted_at: null },
       order: ['date'],
       attributes: ['id', 'date', 'cash_value'],
       limit: 20,
@@ -24,7 +24,7 @@ class TransactionController {
       include: [
         {
           model: User,
-          as: 'provider',
+          as: 'user',
           attributes: ['id', 'name'],
           include: [
             {

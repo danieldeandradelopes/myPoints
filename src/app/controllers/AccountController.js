@@ -32,7 +32,14 @@ class AccountController {
           ],
         },
       ],
+      where: {
+        user_id: req.userId,
+      },
     });
+
+    if (!accounts) {
+      return res.status(400).json({ error: 'Não foi possível exibir conta!' });
+    }
     return res.json(accounts);
   }
 
