@@ -5,8 +5,10 @@ import User from '../app/models/User';
 import File from '../app/models/File';
 import Account from '../app/models/Account';
 import Transaction from '../app/models/Transaction';
+import Category from '../app/models/Category';
+import Product from '../app/models/Product';
 
-const models = [User, File, Account, Transaction];
+const models = [User, File, Account, Transaction, Category, Product];
 
 class Database {
   constructor() {
