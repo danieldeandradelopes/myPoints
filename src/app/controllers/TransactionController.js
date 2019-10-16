@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { startOfHour, parseISO, isBefore } from 'date-fns';
+import { startOfHour, parseISO, isBefore, isAfter } from 'date-fns';
 // import pt from 'date-fns/locale/pt';
 import Transaction from '../models/Transaction';
 import User from '../models/User';
@@ -41,19 +41,24 @@ class TransactionController {
 
   async store(req, res) {
     const schema = Yup.object().shape({
-      provider_id: Yup.number().required(),
-      user_id: Yup.number().required(),
       date: Yup.date().required(),
+      cpf: Yup.string().required(),
       cash_value: Yup.number().required(),
     });
+
+    const provider_id = req.userId;
 
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'As validações falharam!' });
     }
-    const { provider_id, user_id, date, cash_value } = req.body;
+    const { cpf, date, cash_value } = req.body;
 
     const isProvider = await User.findOne({
       where: { id: provider_id, provider: true },
+    });
+
+    const actualUser = await User.findOne({
+      where: { cpf },
     });
 
     if (!isProvider) {
@@ -65,20 +70,20 @@ class TransactionController {
     // data passada?
     // transformar data pegando apenas horas e não minutos
     const hourStart = startOfHour(parseISO(date));
-    if (isBefore(hourStart, new Date())) {
+    if (isAfter(hourStart, new Date())) {
       return res
         .status(400)
         .json({ error: 'Datas passadas não são permitidas' });
     }
 
-    if (provider_id === user_id) {
+    if (isProvider.cpf === actualUser.cpf) {
       return res
         .status(400)
         .json({ error: 'Você não pode atribuir pontos a você mesmo!' });
     }
 
     const { id, balance } = await Account.findOne({
-      where: { user_id },
+      where: { user_id: actualUser.id },
     });
 
     await Account.update(
@@ -93,7 +98,7 @@ class TransactionController {
     );
 
     const transaction = await Transaction.create({
-      user_id,
+      user_id: actualUser.id,
       provider_id,
       date,
       cash_value,
