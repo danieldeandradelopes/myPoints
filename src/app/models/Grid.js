@@ -1,11 +1,12 @@
 import Sequelize, { Model } from 'sequelize';
 
-class Category extends Model {
+class Grid extends Model {
   static init(sequelize) {
     super.init(
       {
         name: Sequelize.STRING,
-        description: Sequelize.STRING,
+        details: Sequelize.STRING,
+        deleted_at: Sequelize.DATE,
       },
       {
         sequelize,
@@ -16,4 +17,4 @@ class Category extends Model {
   }
 }
 
-export default Category;
+export default Grid;

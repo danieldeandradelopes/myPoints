@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { startOfHour, parseISO, isBefore, isAfter } from 'date-fns';
+import { startOfHour, parseISO, isAfter } from 'date-fns';
 // import pt from 'date-fns/locale/pt';
 import Transaction from '../models/Transaction';
 import User from '../models/User';
@@ -49,7 +49,7 @@ class TransactionController {
     const provider_id = req.userId;
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'As validações falharam!' });
+      return res.status(400).json({ error: 'Validation fails!' });
     }
     const { cpf, date, cash_value } = req.body;
 
@@ -63,17 +63,15 @@ class TransactionController {
 
     if (!isProvider) {
       return res.status(401).json({
-        error: 'Você não pode adicionar pontos sendo um cliente!',
+        error: 'You can no points added being customer',
       });
     }
 
     // data passada?
     // transformar data pegando apenas horas e não minutos
     const hourStart = startOfHour(parseISO(date));
-    if (isAfter(hourStart, new Date())) {
-      return res
-        .status(400)
-        .json({ error: 'Datas passadas não são permitidas' });
+    if (!isAfter(hourStart, new Date())) {
+      return res.status(400).json({ error: 'Past dates are not allowed' });
     }
 
     if (isProvider.cpf === actualUser.cpf) {
@@ -104,43 +102,6 @@ class TransactionController {
       cash_value,
       account_id: id,
     });
-
-    return res.json(transaction);
-  }
-
-  async delete(req, res) {
-    const transaction = await Transaction.findByPk(req.params.id);
-
-    const { account_id, cash_value } = await Transaction.findByPk(
-      req.params.id
-    );
-
-    const isProvider = await User.findOne({
-      where: { id: req.userId, provider: true },
-    });
-
-    if (!isProvider) {
-      return res.status(401).json({
-        error: 'Somente funcionários podem excluir uma transação!',
-      });
-    }
-
-    transaction.deleted_at = new Date();
-
-    const { id, balance } = await Account.findByPk(account_id);
-
-    await Account.update(
-      {
-        balance: balance - cash_value,
-      },
-      {
-        where: {
-          id,
-        },
-      }
-    );
-
-    await transaction.save();
 
     return res.json(transaction);
   }
@@ -202,6 +163,43 @@ class TransactionController {
       cash_value,
       user,
     });
+  }
+
+  async delete(req, res) {
+    const transaction = await Transaction.findByPk(req.params.id);
+
+    const { account_id, cash_value } = await Transaction.findByPk(
+      req.params.id
+    );
+
+    const isProvider = await User.findOne({
+      where: { id: req.userId, provider: true },
+    });
+
+    if (!isProvider) {
+      return res.status(401).json({
+        error: 'Only employees can delete a transaction!',
+      });
+    }
+
+    transaction.deleted_at = new Date();
+
+    const { id, balance } = await Account.findByPk(account_id);
+
+    await Account.update(
+      {
+        balance: balance - cash_value,
+      },
+      {
+        where: {
+          id,
+        },
+      }
+    );
+
+    await transaction.save();
+
+    return res.json(transaction);
   }
 }
 

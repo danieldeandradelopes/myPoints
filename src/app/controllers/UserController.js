@@ -9,6 +9,16 @@ import RegisterMail from '../jobs/RegisterMail';
 
 class UserController {
   async index(req, res) {
+    const isProvider = await User.findOne({
+      where: { id: req.userId, provider: true },
+    });
+
+    if (!isProvider) {
+      return res.status(401).json({
+        error: 'Access blocked!',
+      });
+    }
+
     const users = await User.findAll({
       where: { provider: false },
       attributes: ['id', 'name', 'email', 'avatar_id'],
