@@ -1,29 +1,31 @@
 import * as Yup from 'yup';
-import Grid from '../models/Grid';
+import Unity from '../models/Unity';
 import User from '../models/User';
 
-class GridController {
+class UnityController {
   async index(req, res) {
-    const grids = await Grid.findAll({
-      where: { deleted_at: null },
-      attributes: ['id', 'name', 'details'],
-    });
+    const { page = 1 } = req.query;
 
-    return res.json(grids);
+    const unity = await Unity.findAll({
+      where: { deleted_at: null },
+      attributes: ['id', 'name'],
+      limit: 20,
+      offset: (page - 1) * 20,
+    });
+    return res.json(unity);
   }
 
   async store(req, res) {
     const schema = Yup.object().shape({
       name: Yup.string().required(),
-      details: Yup.string().required(),
     });
-
-    const provider_id = req.userId;
 
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'Validation fails!' });
     }
-    const { name, details } = req.body;
+    const { name } = req.body;
+
+    const provider_id = req.userId;
 
     const isProvider = await User.findOne({
       where: { id: provider_id, provider: true },
@@ -34,26 +36,25 @@ class GridController {
         error: 'Access blocked!',
       });
     }
-    const gridExists = await Grid.findOne({
+
+    const unityExits = await Unity.findOne({
       where: { name, deleted_at: null },
     });
 
-    if (gridExists) {
-      return res.status(400).json({ error: 'Grid already exists!' });
+    if (unityExits) {
+      return res.status(400).json({ error: 'Unity already exists!' });
     }
 
-    const grid = await Grid.create({
+    const unity = await Unity.create({
       name,
-      details,
     });
 
-    return res.json(grid);
+    return res.json(unity);
   }
 
   async update(req, res) {
     const schema = Yup.object().shape({
       name: Yup.string().required(),
-      details: Yup.string(),
     });
 
     if (!(await schema.isValid(req.body))) {
@@ -70,24 +71,24 @@ class GridController {
       });
     }
 
-    const grid = await Grid.findOne({
+    const unity = await Unity.findOne({
       where: { id: req.params.id },
     });
 
-    if (!grid) {
+    if (!unity) {
       return res.status(400).json({ error: 'Id dont exists!' });
     }
-    const gridNameExist = await Grid.findOne({
-      where: { name: req.body.name },
+    const unityNameExists = await Unity.findOne({
+      where: { name: req.body.name, deleted_at: null },
     });
 
-    if (gridNameExist) {
-      return res.status(400).json({ error: 'Grid already exists!' });
+    if (unityNameExists) {
+      return res.status(400).json({ error: 'Unity already exists!' });
     }
 
-    await grid.update(req.body);
+    await unity.update(req.body);
 
-    return res.json(grid);
+    return res.json(unity);
   }
 
   async delete(req, res) {
@@ -101,14 +102,14 @@ class GridController {
       });
     }
 
-    const grid = await Grid.findByPk(req.params.id);
+    const unity = await Unity.findByPk(req.params.id);
 
-    grid.deleted_at = new Date();
+    unity.deleted_at = new Date();
 
-    await grid.save();
+    await unity.save();
 
-    return res.json(grid);
+    return res.json(unity);
   }
 }
 
-export default new GridController();
+export default new UnityController();

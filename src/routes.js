@@ -9,6 +9,7 @@ import ProviderController from './app/controllers/ProviderController';
 import TransactionController from './app/controllers/TransactionController';
 import AccountController from './app/controllers/AccountController';
 import GridController from './app/controllers/GridController';
+import UnityController from './app/controllers/UnityController';
 import ProductsController from './app/controllers/ProductsController';
 import PicturesProductsController from './app/controllers/PicturesProductsController';
 
@@ -53,6 +54,12 @@ routes.get('/grid', GridController.index);
 routes.post('/grid', GridController.store);
 routes.put('/grid/:id', GridController.update);
 routes.delete('/grid/:id', GridController.delete);
+
+// UNITY
+routes.get('/unity', UnityController.index);
+routes.post('/unity', UnityController.store);
+routes.put('/unity/:id', UnityController.update);
+routes.delete('/unity/:id', UnityController.delete);
 
 // PRODUCT
 routes.get('/products', ProductsController.index);

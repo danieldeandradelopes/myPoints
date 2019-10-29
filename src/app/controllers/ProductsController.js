@@ -62,7 +62,7 @@ class ProductsController {
     }
 
     const productExits = await Product.findOne({
-      where: { name },
+      where: { name, deleted_at: null },
     });
 
     if (productExits) {
@@ -109,7 +109,7 @@ class ProductsController {
       return res.status(400).json({ error: 'Id dont exists!' });
     }
     const productNameExists = await Product.findOne({
-      where: { name: req.body.name },
+      where: { name: req.body.name, deleted_at: null },
     });
 
     if (productNameExists) {

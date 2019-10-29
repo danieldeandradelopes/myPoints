@@ -6,6 +6,7 @@ import File from '../app/models/File';
 import Account from '../app/models/Account';
 import Transaction from '../app/models/Transaction';
 import Grid from '../app/models/Grid';
+import Unity from '../app/models/Unity';
 import Products from '../app/models/Products';
 import PictureProducts from '../app/models/PictureProducts';
 
@@ -15,6 +16,7 @@ const models = [
   Account,
   Transaction,
   Grid,
+  Unity,
   Products,
   PictureProducts,
 ];
