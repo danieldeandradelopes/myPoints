@@ -7,6 +7,7 @@ import PictureProducts from '../models/PictureProducts';
 class ProductsController {
   async index(req, res) {
     const products = await Product.findAll({
+      where: { deleted_at: null },
       attributes: ['id', 'name', 'description', 'stock', 'price'],
       include: [
         {
@@ -30,7 +31,7 @@ class ProductsController {
       name: Yup.string().required(),
       description: Yup.string().required(),
       stock: Yup.number().required(),
-      type: Yup.string().required(),
+      unity_id: Yup.number().required(),
       price: Yup.number().required(),
       grid_id: Yup.number().required(),
       picture_id: Yup.number().required(),
@@ -43,7 +44,7 @@ class ProductsController {
       name,
       description,
       stock,
-      type,
+      unity_id,
       price,
       grid_id,
       picture_id,
@@ -73,7 +74,7 @@ class ProductsController {
       name,
       description,
       stock,
-      type,
+      unity_id,
       price,
       grid_id,
       picture_id,

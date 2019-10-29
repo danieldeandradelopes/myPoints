@@ -7,7 +7,7 @@ class Products extends Model {
         name: Sequelize.STRING,
         description: Sequelize.STRING,
         stock: Sequelize.DOUBLE,
-        type: Sequelize.STRING,
+        unity_id: Sequelize.INTEGER,
         price: Sequelize.DOUBLE,
         deleted_at: Sequelize.DATE,
       },
@@ -21,6 +21,7 @@ class Products extends Model {
 
   static associate(models) {
     this.belongsTo(models.Grid, { foreignKey: 'grid_id', as: 'grids' });
+    this.belongsTo(models.Unity, { foreignKey: 'unity_id', as: 'unity' });
     this.belongsTo(models.PictureProducts, {
       foreignKey: 'picture_id',
       as: 'picture_products',
